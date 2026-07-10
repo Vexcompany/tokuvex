@@ -2,10 +2,13 @@ const PROXY = "https://cors.siputzx.my.id/"
 const PLACEHOLDER = "https://placehold.co/180x260/0e0f1a/5a5c7a?text=No+Poster"
 
 async function fetchDoc(url) {
+  // 1. Ubah ke res.text() karena siputzx mengembalikan HTML mentah, bukan JSON
   const res = await fetch(PROXY + encodeURIComponent(url))
-  const data = await res.json()
+  const htmlText = await res.text() 
+  
   const parser = new DOMParser()
-  return parser.parseFromString(data.contents, "text/html")
+  // 2. data.contents diganti langsung ke htmlText
+  return parser.parseFromString(htmlText, "text/html") 
 }
 
 export async function fetchEpisodes(urlNeosatsu) {
