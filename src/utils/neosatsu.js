@@ -1,4 +1,4 @@
-const PROXY = "https://api.allorigins.win/get?url="
+const PROXY = "https://cors.siputzx.my.id/get?url="
 const PLACEHOLDER = "https://placehold.co/180x260/0e0f1a/5a5c7a?text=No+Poster"
 
 async function fetchDoc(url) {
