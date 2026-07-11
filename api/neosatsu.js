@@ -2,7 +2,6 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 
 export default async function handler(req, res) {
-    
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*'); 
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -22,24 +21,20 @@ export default async function handler(req, res) {
         const $ = cheerio.load(response.data);
         const allData = [];
 
-        $('article, div').each((index, element) => {
-            const className = $(element).attr('class') || '';
-            
-            if (['post', 'item', 'b-item', 'hentry'].some(c => className.includes(c))) {
-                const judul = $(element).find('.entry-title, .post-title, h2, h3').text().trim();
-                const link = $(element).find('a').attr('href');
-                const gambar = $(element).find('img').attr('src') || $(element).find('img').attr('data-src');
-                const kategori = $(element).find('.category, .cat-links').text().trim() || "Tokusatsu";
+        $('article, .post, .b-item, .hentry').each((index, element) => {
+            const judul = $(element).find('.entry-title, .post-title, h2, h3').first().text().trim();
+            const link = $(element).find('a').attr('href');
+            const gambar = $(element).find('img').attr('src') || $(element).find('img').attr('data-src');
+            const kategori = $(element).find('.category, .cat-links').text().trim() || "Tokusatsu";
 
-                if (judul && link && link.startsWith('http') && judul.length > 5) {
-                    if (!allData.some(item => item.title === judul)) {
-                        allData.push({
-                            title: judul,
-                            url: link,
-                            thumbnail: gambar,
-                            category: kategori
-                        });
-                    }
+            if (judul && link && link.startsWith('http') && !judul.startsWith('Terbaru\n') && judul.length < 100) {
+                if (!allData.some(item => item.title === judul)) {
+                    allData.push({
+                        title: judul,
+                        url: link,
+                        thumbnail: gambar,
+                        category: kategori
+                    });
                 }
             }
         });
