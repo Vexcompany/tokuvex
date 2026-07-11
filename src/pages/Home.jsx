@@ -18,11 +18,19 @@ const Home = () => {
   if (loading) return <p style={{ color: "white", padding: "20px" }}>Loading Tokusatsu Terbaru...</p>
 
   return (
-    <div className="series-container" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "20px", padding: "20px" }}>
-      {seriesList.map((item, index) => (
-        // Masukkan data hasil scrape ke properti data
-        <SeriesCard key={index} data={item} />
-      ))}
+    <div style={{ padding: "20px" }}>
+      <h2 style={{ color: "white", marginBottom: "20px" }}>Koleksi Terbaru</h2>
+      
+      {/* KUNCI PERBAIKAN GRID: Pastikan container membungkus .map dengan benar */}
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", 
+        gap: "20px" 
+      }}>
+        {seriesList && seriesList.map((item, index) => (
+          <SeriesCard key={index} data={item} />
+        ))}
+      </div>
     </div>
   )
 }
