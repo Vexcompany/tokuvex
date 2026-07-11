@@ -8,6 +8,8 @@ const Watch = () => {
   
   const [playlist, setPlaylist] = useState([])
   const [activeEpisode, setActiveEpisode] = useState(null)
+  const [embedUrl, setEmbedUrl] = useState("")
+  const [loadingVideo, setLoadingVideo] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -25,6 +27,31 @@ const Watch = () => {
     }
   }, [id])
 
+  useEffect(() => {
+    const fetchRealStream = async () => {
+      if (!activeEpisode?.url) return
+
+      setLoadingVideo(true)
+      try {
+        const res = await fetch(`/api/get-stream?url=${encodeURIComponent(activeEpisode.url)}`)
+        const json = await res.json()
+        
+        if (json.success && json.streamUrl) {
+          setEmbedUrl(json.streamUrl)
+        } else {
+          setEmbedUrl(activeEpisode.url) 
+        }
+      } catch (err) {
+        console.error("Gagal menarik video stream:", err)
+        setEmbedUrl(activeEpisode.url)
+      } finally {
+        setLoadingVideo(false)
+      }
+    }
+
+    fetchRealStream()
+  }, [activeEpisode])
+
   return (
     <div style={{ color: "white", padding: "30px", backgroundColor: "#0e0f1a", minHeight: "100vh", fontFamily: "sans-serif" }}>
       <Link to="/" style={{ color: "#00adb5", textDecoration: "none", fontWeight: "bold" }}>← Kembali ke Beranda</Link>
@@ -33,39 +60,42 @@ const Watch = () => {
       
       <div style={{ display: "flex", gap: "25px", marginTop: "20px", flexWrap: "wrap" }}>
         
-{/* AREA VIDEO PLAYER */}
-<div style={{ flex: "2", minWidth: "500px" }}>
-  <div style={{ 
-    width: "100%", 
-    aspectRatio: "16/9", 
-    background: "#000", 
-    borderRadius: "8px", 
-    border: "1px solid #222", 
-    overflow: "hidden", 
-    position: "relative"
-  }}>
-    {activeEpisode?.url ? (
-      <iframe
-        src={activeEpisode.url} 
-        title={activeEpisode.rawTitle}
-        style={{ width: "100%", height: "100%", border: "none" }}
-        allowFullScreen
-        sandbox="allow-scripts allow-same-origin allow-forms" 
-      />
-    ) : (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", height: "100%" }}>
-        <span style={{ fontSize: "40px" }}>🎬</span>
-        <h3 style={{ marginTop: "15px", color: "#aaa" }}>Memilih Episode...</h3>
-      </div>
-    )}
-  </div>
-  
-  <div style={{ marginTop: "15px", padding: "15px", background: "#161722", borderRadius: "6px" }}>
-    <h4>Sedang Diputar:</h4>
-    <p style={{ color: "#00adb5", marginTop: "5px", fontWeight: "bold" }}>{activeEpisode?.rawTitle}</p>
-  </div>
-</div>
+        {/* AREA VIDEO PLAYER */}
+        <div style={{ flex: "2", minWidth: "500px" }}>
+          <div style={{ 
+            width: "100%", 
+            aspectRatio: "16/9", 
+            background: "#000", 
+            borderRadius: "8px", 
+            border: "1px solid #222", 
+            overflow: "hidden",
+            position: "relative"
+          }}>
+            {loadingVideo ? (
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", flexDirection: "column" }}>
+                <p style={{ color: "#00adb5" }}>Membypass Iklan & Mencari Server Video...</p>
+              </div>
+            ) : embedUrl ? (
+              <iframe
+                src={embedUrl}
+                title={activeEpisode?.rawTitle}
+                style={{ width: "100%", height: "100%", border: "none" }}
+                allowFullScreen
+                sandbox="allow-scripts allow-same-origin allow-forms"
+              />
+            ) : (
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                <p style={{ color: "#aaa" }}>Pilih episode di sebelah kanan untuk memutar</p>
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop: "15px", padding: "15px", background: "#161722", borderRadius: "6px" }}>
+            <h4>Sedang Diputar:</h4>
+            <p style={{ color: "#00adb5", marginTop: "5px", fontWeight: "bold" }}>{activeEpisode?.rawTitle}</p>
+          </div>
+        </div>
 
+        {/* AREA HOTBAR PLAYLIST EPISODE */}
         <div style={{ flex: "1", minWidth: "280px", background: "#161722", padding: "20px", borderRadius: "8px", border: "1px solid #222", maxHeight: "450px", overflowY: "auto" }}>
           <h3 style={{ fontSize: "16px", marginBottom: "15px", borderBottom: "1px solid #333", paddingBottom: "10px", color: "#00adb5" }}>
             Daftar Episode ({playlist.length})
@@ -85,7 +115,7 @@ const Watch = () => {
                     cursor: "pointer", transition: "0.2s"
                   }}
                 >
-                  {ep.rawTitle.split("Subtitle")[0]} 
+                  {ep.rawTitle.split("Subtitle")[0]}
                 </button>
               )
             })}
