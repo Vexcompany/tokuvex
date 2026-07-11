@@ -33,19 +33,38 @@ const Watch = () => {
       
       <div style={{ display: "flex", gap: "25px", marginTop: "20px", flexWrap: "wrap" }}>
         
-        <div style={{ flex: "2", minWidth: "500px" }}>
-          <div style={{ width: "100%", aspectRatio: "16/9", background: "#000", borderRadius: "8px", border: "1px solid #222", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-            <span style={{ fontSize: "40px" }}>🎬</span>
-            <h3 style={{ marginTop: "15px", color: "#aaa" }}>Pemutar Video Siap</h3>
-            <p style={{ color: "#555", fontSize: "12px", padding: "0 20px", textAlign: "center" }}>
-              Targeting: {activeEpisode?.url}
-            </p>
-          </div>
-          <div style={{ marginTop: "15px", padding: "15px", background: "#161722", borderRadius: "6px" }}>
-            <h4>Sedang Diputar:</h4>
-            <p style={{ color: "#00adb5", marginTop: "5px" }}>{activeEpisode?.rawTitle}</p>
-          </div>
-        </div>
+{/* AREA VIDEO PLAYER */}
+<div style={{ flex: "2", minWidth: "500px" }}>
+  <div style={{ 
+    width: "100%", 
+    aspectRatio: "16/9", 
+    background: "#000", 
+    borderRadius: "8px", 
+    border: "1px solid #222", 
+    overflow: "hidden", 
+    position: "relative"
+  }}>
+    {activeEpisode?.url ? (
+      <iframe
+        src={activeEpisode.url} 
+        title={activeEpisode.rawTitle}
+        style={{ width: "100%", height: "100%", border: "none" }}
+        allowFullScreen
+        sandbox="allow-scripts allow-same-origin allow-forms" 
+      />
+    ) : (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", height: "100%" }}>
+        <span style={{ fontSize: "40px" }}>🎬</span>
+        <h3 style={{ marginTop: "15px", color: "#aaa" }}>Memilih Episode...</h3>
+      </div>
+    )}
+  </div>
+  
+  <div style={{ marginTop: "15px", padding: "15px", background: "#161722", borderRadius: "6px" }}>
+    <h4>Sedang Diputar:</h4>
+    <p style={{ color: "#00adb5", marginTop: "5px", fontWeight: "bold" }}>{activeEpisode?.rawTitle}</p>
+  </div>
+</div>
 
         <div style={{ flex: "1", minWidth: "280px", background: "#161722", padding: "20px", borderRadius: "8px", border: "1px solid #222", maxHeight: "450px", overflowY: "auto" }}>
           <h3 style={{ fontSize: "16px", marginBottom: "15px", borderBottom: "1px solid #333", paddingBottom: "10px", color: "#00adb5" }}>
