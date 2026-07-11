@@ -81,7 +81,7 @@ const Watch = () => {
   title={activeEpisode?.rawTitle}
   style={{ width: "100%", height: "100%", border: "none" }}
   allowFullScreen
-  sandbox="allow-scripts allow-same-origin allow-forms"
+  allow="autoplay; encrypted-media; picture-in-picture"
 />
             ) : (
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
