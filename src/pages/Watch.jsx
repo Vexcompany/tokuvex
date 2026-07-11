@@ -77,12 +77,12 @@ const Watch = () => {
               </div>
             ) : embedUrl ? (
               <iframe
-                src={embedUrl}
-                title={activeEpisode?.rawTitle}
-                style={{ width: "100%", height: "100%", border: "none" }}
-                allowFullScreen
-                sandbox="allow-scripts allow-same-origin allow-forms"
-              />
+  src={embedUrl}
+  title={activeEpisode?.rawTitle}
+  style={{ width: "100%", height: "100%", border: "none" }}
+  allowFullScreen
+  sandbox="allow-scripts allow-same-origin allow-forms"
+/>
             ) : (
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
                 <p style={{ color: "#aaa" }}>Pilih episode di sebelah kanan untuk memutar</p>
