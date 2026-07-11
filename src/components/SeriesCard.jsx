@@ -18,7 +18,10 @@ const SeriesCard = ({ data }) => {
   return (
     <div 
       className="series-card" 
-      onClick={() => navigate(`/series/${encodeURIComponent(data.url)}`)}
+onClick={() => {
+  const urlSafeBase64 = btoa(data.url).replace(/\//g, '-').replace(/\+/g, '_');
+  navigate(`/series/${urlSafeBase64}`);
+}}
       style={{ 
         cursor: 'pointer', 
         border: '1px solid #222', 
