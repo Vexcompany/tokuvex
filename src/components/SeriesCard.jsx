@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom"
 
 const PLACEHOLDER = "https://placehold.co/180x260/0e0f1a/5a5c7a?text=No+Image"
 
-// Asumsi komponen ini menerima properti 'series' atau 'data' hasil scrape
 const SeriesCard = ({ data }) => {
   const navigate = useNavigate()
-  
-  // Ambil thumbnail langsung dari data scraper, jika kosong gunakan placeholder
+
   const posterUrl = data?.thumbnail || PLACEHOLDER
 
   return (
