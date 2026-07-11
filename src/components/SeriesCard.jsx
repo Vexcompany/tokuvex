@@ -18,7 +18,7 @@ const SeriesCard = ({ data }) => {
   return (
     <div 
       className="series-card" 
-      onClick={() => navigate(`/series/${btoa(data.url)}`)}
+      onClick={() => navigate(`/series/${encodeURIComponent(data.url)}`)}
       style={{ 
         cursor: 'pointer', 
         border: '1px solid #222', 
