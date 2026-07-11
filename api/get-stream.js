@@ -21,7 +21,6 @@ export default async function handler(req, res) {
         const $neo = cheerio.load(responseNeosatsu.data);
         
         let targetBlogspot = "";
-        
         $neo('a').each((i, el) => {
             const href = $neo(el).attr('href') || '';
             const text = $neo(el).text().toLowerCase();
@@ -39,7 +38,6 @@ export default async function handler(req, res) {
 
         if (targetBlogspot && targetBlogspot.includes('?url=')) {
             const rawParam = targetBlogspot.split('?url=')[1] || "";
-            
             let cleanBase64 = rawParam.split('=')[0]; 
             
             if (cleanBase64.includes('758czo758v')) {
@@ -51,17 +49,18 @@ export default async function handler(req, res) {
                     cleanBase64 += '=';
                 }
                 
-                const decodedText = Buffer.from(cleanBase64, 'base64').toString('utf-8');
+                let decodedText = Buffer.from(cleanBase64, 'base64').toString('utf-8').trim();
                 
+                if (decodedText.startsWith('/')) {
+                    decodedText = decodedText.substring(1);
+                }
+
                 if (decodedText.includes('pixeldrain.com')) {
-                    let cleanPixeldrain = decodedText.trim();
-                    if (cleanPixeldrain.includes('/u/')) {
-                        cleanPixeldrain = cleanPixeldrain.replace('/u/', '/e/');
-                    }
-                    finalStreamUrl = cleanPixeldrain;
+                    let cleanId = decodedText.replace('pixeldrain.com/u/', '').replace('pixeldrain.com/e/', '');
+                    finalStreamUrl = `https://pixeldrain.com/e/${cleanId}`;
                 }
             } catch (cryptoErr) {
-                console.error("Gagal melakukan kalkulasi decode Base64:", cryptoErr);
+                console.error("Gagal parsing base64:", cryptoErr);
             }
         }
 
@@ -69,16 +68,16 @@ export default async function handler(req, res) {
             try {
                 const responseBlog = await axios.get(targetBlogspot, { headers });
                 const $blog = cheerio.load(responseBlog.data);
-                
                 $blog('a, iframe').each((i, el) => {
                     const src = $blog(el).attr('src') || $blog(el).attr('href') || '';
                     if (src.includes('pixeldrain.com')) {
-                        finalStreamUrl = src.replace('/u/', '/e/').split('?')[0];
+                        let cleanId = src.replace('https://pixeldrain.com/u/', '').replace('https://pixeldrain.com/e/', '').split('?')[0];
+                        finalStreamUrl = `https://pixeldrain.com/e/${cleanId}`;
                         return false;
                     }
                 });
             } catch (e) {
-                console.error("Gagal melakukan scraping halaman blogspot:", e);
+                console.error("Scraper blogspot gagal:", e);
             }
         }
 
