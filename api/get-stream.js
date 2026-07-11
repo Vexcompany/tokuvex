@@ -65,17 +65,24 @@ export default async function handler(req, res) {
                     decodedText = decodedText.substring(1);
                 }
 
-                // C. JALUR COCOK PIXELDRAIN
-                if (decodedText.includes('pixeldrain.com')) {
+// C. LOGIKA PEMILIHAN OTOMATIS BERDASARKAN TOMBOL FRONTEND
+                const reqServer = req.query.server || "pixeldrain";
+
+                if (reqServer === "gdrive" && decodedText.includes('drive.google.com')) {
+                    const matchDriveId = decodedText.match(/id=([A-Za-z0-9_-]+)/);
+                    if (matchDriveId && matchDriveId[1]) {
+                        finalStreamUrl = `https://drive.google.com/file/d/${matchDriveId[1]}/preview`;
+                    }
+                } else {
+                    // Default / Fallback balik ke Pixeldrain
                     const matchId = decodedText.match(/\/[ue]\/([A-Za-z0-9_-]{8})/);
                     if (matchId && matchId[1]) {
                         finalStreamUrl = `https://pixeldrain.com/e/${matchId[1]}`;
                     } else {
-                        // Jalur alternatif jika regex meleset
                         let cleanId = decodedText.replace('pixeldrain.com/u/', '').replace('pixeldrain.com/e/', '');
                         finalStreamUrl = `https://pixeldrain.com/e/${cleanId}`;
                     }
-                } 
+                }
                 // D. JALUR COCOK GOOGLE DRIVE
                 else if (decodedText.includes('drive.google.com')) {
                     // Ambil ID file Google Drive dari parameter id=xxxx
