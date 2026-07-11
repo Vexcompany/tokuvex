@@ -15,21 +15,33 @@ const Home = () => {
     getData()
   }, [])
 
-  if (loading) return <p style={{ color: "white", padding: "20px" }}>Loading Tokusatsu Terbaru...</p>
+  if (loading) {
+    return (
+      <div style={{ color: "white", padding: "40px", textAlign: "center", fontFamily: "sans-serif" }}>
+        <h3>Membuka Gerbang Tokusatsu Terbaru...</h3>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 style={{ color: "white", marginBottom: "20px" }}>Koleksi Terbaru</h2>
+    <div style={{ backgroundColor: "#0e0f1a", minHeight: "100vh", padding: "30px", fontFamily: "sans-serif" }}>
+      <h2 style={{ color: "white", marginBottom: "25px", fontWeight: "bold", borderLeft: "4px solid #00adb5", paddingLeft: "10px" }}>
+        Koleksi Terbaru
+      </h2>
       
-      {/* KUNCI PERBAIKAN GRID: Pastikan container membungkus .map dengan benar */}
+      {/* KUNCI STRUKTUR GRID: Mengatur tata letak kotak pembungkus */}
       <div style={{ 
         display: "grid", 
         gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", 
         gap: "20px" 
       }}>
-        {seriesList && seriesList.map((item, index) => (
-          <SeriesCard key={index} data={item} />
-        ))}
+        {seriesList && seriesList.length > 0 ? (
+          seriesList.map((item, index) => (
+            <SeriesCard key={index} data={item} />
+          ))
+        ) : (
+          <p style={{ color: "#aaa" }}>Tidak ada data yang berhasil dimuat.</p>
+        )}
       </div>
     </div>
   )
