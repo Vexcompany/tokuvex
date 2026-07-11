@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
         let targetBlogspot = url;
 
-        // 1. Ambil link Blogspot dari halaman Neosatsu jika diperlukan
+        // 1. Scrape halaman Neosatsu jika input berupa link artikel utama
         if (url.includes('neosatsu.com')) {
             const responseNeosatsu = await axios.get(url, { headers });
             const $neo = cheerio.load(responseNeosatsu.data);
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
             const rawParam = targetBlogspot.split('?url=')[1] || "";
             let cleanBase64 = rawParam;
 
-            // A. Kupas pola pembatas depan czo...v
+            // A. Potong pola enkripsi kepala (czo...v)
             if (cleanBase64.includes('czo')) {
                 const parts = cleanBase64.split(/czo.*?v/);
                 if (parts.length > 1) {
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
                 }
             }
 
-            // B. Kupas ekor string sebelum karakter sampah tambahan
+            // B. Potong ampas ekor string sebelum tanda sama dengan tambahan
             if (cleanBase64.includes('=')) {
                 cleanBase64 = cleanBase64.split('=')[0];
             }
@@ -57,19 +57,35 @@ export default async function handler(req, res) {
                     cleanBase64 += '=';
                 }
                 
-                // Decode teks hasil kupasan
-                const decodedText = Buffer.from(cleanBase64, 'base64').toString('utf-8');
+                // Decode teks utama
+                let decodedText = Buffer.from(cleanBase64, 'base64').toString('utf-8').trim();
                 
-                // C. EKSTRAKSI ID UTAMA: Ambil 8 karakter ID Pixeldrain setelah teks /u/ atau /e/
-                // Pola regex ini akan mencocokkan karakter alfanumerik sepanjang 8 digit setelah /u/ atau /e/
-                const matchId = decodedText.match(/\/[ue]\/([A-Za-z0-9_-]{8})/);
-                
-                if (matchId && matchId[1]) {
-                    const cleanId = matchId[1];
-                    finalStreamUrl = `https://pixeldrain.com/e/${cleanId}`;
+                // KUNCI UTAMA: Buang tanda slash (/) liar di baris paling depan jika ada!
+                if (decodedText.startsWith('/')) {
+                    decodedText = decodedText.substring(1);
+                }
+
+                // C. JALUR COCOK PIXELDRAIN
+                if (decodedText.includes('pixeldrain.com')) {
+                    const matchId = decodedText.match(/\/[ue]\/([A-Za-z0-9_-]{8})/);
+                    if (matchId && matchId[1]) {
+                        finalStreamUrl = `https://pixeldrain.com/e/${matchId[1]}`;
+                    } else {
+                        // Jalur alternatif jika regex meleset
+                        let cleanId = decodedText.replace('pixeldrain.com/u/', '').replace('pixeldrain.com/e/', '');
+                        finalStreamUrl = `https://pixeldrain.com/e/${cleanId}`;
+                    }
+                } 
+                // D. JALUR COCOK GOOGLE DRIVE
+                else if (decodedText.includes('drive.google.com')) {
+                    // Ambil ID file Google Drive dari parameter id=xxxx
+                    const matchDriveId = decodedText.match(/id=([A-Za-z0-9_-]+)/);
+                    if (matchDriveId && matchDriveId[1]) {
+                        finalStreamUrl = `https://drive.google.com/file/d/${matchDriveId[1]}/preview`;
+                    }
                 }
             } catch (cryptoErr) {
-                console.error("Gagal melakukan kalkulasi decode Base64:", cryptoErr);
+                console.error("Gagal kalkulasi Base64:", cryptoErr);
             }
         }
 
